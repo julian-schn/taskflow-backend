@@ -1,89 +1,229 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- 1. Parent POM: Spring Boot Starter Parent for dependency and plugin management -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>3.5.0</version> <!-- Latest Spring Boot 3.x as of May 23, 2025  [oai_citation:18‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
+        <relativePath/> <!-- Lookup parent from repository -->
     </parent>
+
     <groupId>com.taskflow</groupId>
     <artifactId>taskflow-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>taskflow-backend</name>
-    <description>taskflow-backend</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <description>Taskflow Backend: Spring Boot + AWS Lambda + DynamoDB + JWT</description>
+
     <properties>
+        <!-- Ensure Java 17+ for Spring Boot 3.x -->
         <java.version>17</java.version>
     </properties>
+
+    <!-- 2. AWS SDK v2 BOM: ensures all aws-sdk-v2 modules share version 2.31.54 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.31.54</version> <!-- AWS SDK v2 BOM  [oai_citation:19‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) [oai_citation:20‡GitHub](https://github.com/jwtk/jjwt/releases?utm_source=chatgpt.com) -->
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <!--
+          3. Core Spring Boot Dependencies
+        -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
+            <!-- Spring Web Starter: REST controllers, embedded Tomcat, JSON support -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!--  [oai_citation:21‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/get-started-tutorial.html?utm_source=chatgpt.com) -->
+
         <dependency>
+            <!-- Spring Security Starter: Basic security (authentication/authorization) -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <!--  -->
+
+        <dependency>
+            <!-- Spring Session Core: Abstraction for HTTP session management -->
             <groupId>org.springframework.session</groupId>
             <artifactId>spring-session-core</artifactId>
         </dependency>
+        <!--  (Spring Session docs) -->
 
         <dependency>
+            <!-- DevTools: Enables hot reloading in development -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!--  (Spring Boot DevTools docs) -->
+
         <dependency>
+            <!-- Docker Compose support: allows integration tests to spin up Docker Compose services -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+        <!--  (Spring Boot Docker Compose docs) -->
+
+        <!--
+          4. AWS SDK v2 Dependencies (inherited version from BOM)
+          - DynamoDB (low-level)
+        -->
         <dependency>
+            <!-- AWS SDK DynamoDB Client: low-level API for interacting with DynamoDB -->
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+        </dependency>
+        <!--  [oai_citation:22‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) [oai_citation:23‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-maven.html?utm_source=chatgpt.com) -->
+
+        <dependency>
+            <!-- AWS SDK DynamoDB Enhanced Client: high-level object mapping API -->
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb-enhanced</artifactId>
+        </dependency>
+        <!--  [oai_citation:24‡GitHub](https://github.com/jwtk/jjwt/releases?utm_source=chatgpt.com) -->
+
+        <!--
+          5. AWS Lambda Dependencies
+          - Core interface for Java Lambdas
+        -->
+        <dependency>
+            <!-- AWS Lambda Java Core: provides RequestHandler and context APIs -->
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-lambda-java-core</artifactId>
+            <version>1.2.1</version> <!-- Latest in 1.2.x line  [oai_citation:25‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core/1.2.1?utm_source=chatgpt.com) [oai_citation:26‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core?utm_source=chatgpt.com) -->
+        </dependency>
+
+        <dependency>
+            <!-- AWS Lambda Java Events: event model classes (S3Event, APIGatewayProxyRequest, etc.) -->
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-lambda-java-events</artifactId>
+            <version>3.15.0</version> <!-- Latest as of Feb 13, 2025  [oai_citation:27‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events/3.15.0?utm_source=chatgpt.com) [oai_citation:28‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events?utm_source=chatgpt.com) -->
+        </dependency>
+
+        <dependency>
+            <!-- AWS SDK Lambda Client: programmatic Lambda management/invocation -->
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>lambda</artifactId>
+        </dependency>
+        <!--  [oai_citation:29‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-maven.html?utm_source=chatgpt.com) [oai_citation:30‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) -->
+
+        <!--
+          6. JWT (JJWT 0.12.6) Dependencies
+        -->
+        <dependency>
+            <!-- JJWT API: public interfaces for building/parsing JWTs -->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <!--  [oai_citation:31‡Maven Repository](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api/0.12.6?utm_source=chatgpt.com) [oai_citation:32‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
+
+        <dependency>
+            <!-- JJWT Impl: runtime implementation of JWT algorithms -->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!--  [oai_citation:33‡Stack Overflow](https://stackoverflow.com/questions/74828917/maven-dependencies-for-jjwt-json-web-token-on-a-spring-boot-project?utm_source=chatgpt.com) [oai_citation:34‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
+
+        <dependency>
+            <!-- JJWT Jackson: Jackson integration (JSON serialization/deserialization for JWT claims) -->
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!--  [oai_citation:35‡Maven Central](https://central.sonatype.com/artifact/io.jsonwebtoken/jjwt-jackson?utm_source=chatgpt.com) [oai_citation:36‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
+
+        <!--
+          7. Logging (Log4j2)
+        -->
+        <dependency>
+            <!-- Spring Boot Starter Log4j2: replaces default Logback with Log4j2 -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>3.5.0</version> <!-- Latest as of May 23, 2025  [oai_citation:37‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2?utm_source=chatgpt.com) [oai_citation:38‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
+        </dependency>
+
+        <!--
+          8. Testing Dependencies
+        -->
+        <dependency>
+            <!-- Spring Boot Starter Test: JUnit 5, AssertJ, MockMVC, etc. -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--  -->
+
         <dependency>
+            <!-- Spring Boot Testcontainers: integration testing via Docker containers -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--  -->
+
         <dependency>
+            <!-- Spring Security Test: helpers for security tests (@WithMockUser, etc.) -->
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--  -->
+
         <dependency>
+            <!-- JUnit Jupiter for unit testing (if not already included via spring-boot-starter-test) -->
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--  [oai_citation:39‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events/3.15.0?utm_source=chatgpt.com) (JUnit Jupiter integrated with Testcontainers) -->
     </dependencies>
 
     <build>
         <plugins>
+            <!--
+              9. Spring Boot Maven Plugin: packages the application as an executable JAR
+            -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <!--  -->
+
+            <!--
+              10. Jib Maven Plugin: builds Docker/OCI images without Dockerfiles
+            -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.5</version> <!-- Latest as of Mar 17, 2025  [oai_citation:40‡Maven Repository](https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin?utm_source=chatgpt.com) [oai_citation:41‡GitHub](https://github.com/GoogleContainerTools/jib/releases?utm_source=chatgpt.com) -->
+                <configuration>
+                    <!-- Replace with your registry/repository -->
+                    <to>
+                        <image>your-docker-repo/taskflow-backend:latest</image>
+                    </to>
+                </configuration>
+            </plugin>
+            <!--  [oai_citation:42‡Medium](https://medium.com/%40slatecoder/everything-you-need-to-know-about-maven-jib-plugin-9ebe051fa27b?utm_source=chatgpt.com) -->
         </plugins>
     </build>
-
 </project>
