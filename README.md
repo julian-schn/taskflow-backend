@@ -21,6 +21,7 @@
 ### how to run local dynamodb docker container
 1. start container by running ``docker-compose up -d`` from project root
 2. stop container by running ``docker-compose down`` from project root
+3. check running docker containers with ``docker container ls``
 
 ### verify docker dynamodb setup
 1. start container as explained above
