@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore SSL certificates and keys
+localstack/cache/*.pem
+localstack/cache/*.key
