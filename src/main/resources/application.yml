@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: taskflow-backend
+
+  # AWS region set to eu-central-1 to match the DynamoDB Local and LocalStack configs
+  cloud:
+    aws:
+      region:
+        static: eu-central-1
+      credentials:
+        access-key: dummy   # DynamoDB Local ignores actual values
+        secret-key: dummy
+      endpoint: http://localhost:8000
+
+dynamodb:
+  table:
+    name: todos
+
+aws:
+  dynamodb:
+    endpoint: http://localhost:8000  # DynamoDB Local endpoint (fallback)
+
+jwt:
+  secret: ${JWT_SECRET:your-default-secret}
+  expiration-ms: 86400000

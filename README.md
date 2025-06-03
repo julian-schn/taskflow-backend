@@ -26,7 +26,7 @@
 ### verify docker dynamodb setup
 1. start container as explained above
 2. run springboot app(``mvn spring-boot:run``)
-3. from different console, use AWS cli pointing to ``localhost:8000`` to create table as follows:
+3. from different console, use AWS cli pointing to ``localhost:8000`` to create table as follows (this command is normally run when running ``docker compose``):
 ```bash
 aws dynamodb create-table \
   --table-name todos \
@@ -36,7 +36,17 @@ aws dynamodb create-table \
   --endpoint-url http://localhost:8000 \
   --region eu-central-1
 ```
-4. hit endpoints with with API calls (e.g. ``POST ...``)
+4. check with ``aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-central-1`` (requires aws cli) if tables exist, should return "todos"
+5. hit endpoints with with API calls (e.g. ``POST ...``)
+
+#### configuring aws cli
+- you need to run ``aws configure`` first after installing the cli, this prompts you to inputs some calues, these are as follows:
+```bash
+export AWS_ACCESS_KEY_ID=dummy
+export AWS_SECRET_ACCESS_KEY=dummy
+export AWS_DEFAULT_REGION=eu-central-1
+export AWS_DEFAULT_OUTPUT=json
+```
 
 ### how to test the api
 1. start local dynamodb by running ``docker-compose up -d`` from project root
