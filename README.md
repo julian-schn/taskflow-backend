@@ -8,14 +8,6 @@
 - docker
 - log4j
 
-## development roadmap/strategy
-1. set up project, imports, packages, datbase
-2. define tables, classes, objects and mapping
-3. add test cases
-3. develop logic and handles
-4. implement endpoints
-5. set up ci/cd pipeline
-
 ## debugging/faq
 
 ### how to run local dynamodb docker container
@@ -93,7 +85,7 @@ curl -X DELETE http://localhost:8080/api/todos/{id}
 ```
 
 ## implementation roadmap
-1. Implement basic Todo entity and DynamoDB table configuration
+1. Implement basic Todo entity and DynamoDB table configuration (Done 16. June)
     - Create Todo model class with fields (id, title, description, status, createdAt, updatedAt)
     - Set up DynamoDB table configuration in application.yml
     - Create repository interface for Todo operations

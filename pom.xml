@@ -9,7 +9,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version> <!-- Latest Spring Boot 3.x as of May 23, 2025  [oai_citation:18‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
+        <version>3.5.0
+        </version> <!-- Latest Spring Boot 3.x as of May 23, 2025  [oai_citation:18‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
         <relativePath/> <!-- Lookup parent from repository -->
     </parent>
 
@@ -30,7 +31,8 @@
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
-                <version>2.31.54</version> <!-- AWS SDK v2 BOM  [oai_citation:19‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) [oai_citation:20‡GitHub](https://github.com/jwtk/jjwt/releases?utm_source=chatgpt.com) -->
+                <version>2.31.54
+                </version> <!-- AWS SDK v2 BOM  [oai_citation:19‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) [oai_citation:20‡GitHub](https://github.com/jwtk/jjwt/releases?utm_source=chatgpt.com) -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -106,14 +108,16 @@
             <!-- AWS Lambda Java Core: provides RequestHandler and context APIs -->
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-core</artifactId>
-            <version>1.2.1</version> <!-- Latest in 1.2.x line  [oai_citation:25‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core/1.2.1?utm_source=chatgpt.com) [oai_citation:26‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core?utm_source=chatgpt.com) -->
+            <version>1.2.1
+            </version> <!-- Latest in 1.2.x line  [oai_citation:25‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core/1.2.1?utm_source=chatgpt.com) [oai_citation:26‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core?utm_source=chatgpt.com) -->
         </dependency>
 
         <dependency>
             <!-- AWS Lambda Java Events: event model classes (S3Event, APIGatewayProxyRequest, etc.) -->
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-lambda-java-events</artifactId>
-            <version>3.15.0</version> <!-- Latest as of Feb 13, 2025  [oai_citation:27‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events/3.15.0?utm_source=chatgpt.com) [oai_citation:28‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events?utm_source=chatgpt.com) -->
+            <version>3.15.0
+            </version> <!-- Latest as of Feb 13, 2025  [oai_citation:27‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events/3.15.0?utm_source=chatgpt.com) [oai_citation:28‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events?utm_source=chatgpt.com) -->
         </dependency>
 
         <dependency>
@@ -159,7 +163,8 @@
             <!-- Spring Boot Starter Log4j2: replaces default Logback with Log4j2 -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-            <version>3.5.0</version> <!-- Latest as of May 23, 2025  [oai_citation:37‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2?utm_source=chatgpt.com) [oai_citation:38‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
+            <version>3.5.0
+            </version> <!-- Latest as of May 23, 2025  [oai_citation:37‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2?utm_source=chatgpt.com) [oai_citation:38‡Maven Repository](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-log4j2/3.5.0?utm_source=chatgpt.com) -->
         </dependency>
 
         <!--
@@ -196,6 +201,12 @@
             <scope>test</scope>
         </dependency>
         <!--  [oai_citation:39‡Maven Repository](https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events/3.15.0?utm_source=chatgpt.com) (JUnit Jupiter integrated with Testcontainers) -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -215,7 +226,8 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.4.5</version> <!-- Latest as of Mar 17, 2025  [oai_citation:40‡Maven Repository](https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin?utm_source=chatgpt.com) [oai_citation:41‡GitHub](https://github.com/GoogleContainerTools/jib/releases?utm_source=chatgpt.com) -->
+                <version>3.4.5
+                </version> <!-- Latest as of Mar 17, 2025  [oai_citation:40‡Maven Repository](https://mvnrepository.com/artifact/com.google.cloud.tools/jib-maven-plugin?utm_source=chatgpt.com) [oai_citation:41‡GitHub](https://github.com/GoogleContainerTools/jib/releases?utm_source=chatgpt.com) -->
                 <configuration>
                     <!-- Replace with your registry/repository -->
                     <to>
