@@ -23,3 +23,9 @@ aws:
 jwt:
   secret: ${JWT_SECRET:your-default-secret}
   expiration-ms: 86400000
+
+rate:
+  limit:
+    auth:
+      requests-per-minute: 5
+      refresh-requests-per-minute: 10

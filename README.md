@@ -85,7 +85,7 @@ curl -X DELETE http://localhost:8080/api/todos/{id}
 ```
 
 ### secrets and environment variables
-- secret is stored and injected as noted in ``application.yml``
+- secret are stored and injected as noted in ``application.yml``
 - can be injected as environment variable at runtime
 ```bash
 export JWT_SECRET=mysupersecretkey
@@ -99,7 +99,7 @@ mvn spring-boot:run
     - Set up DynamoDB table configuration in application.yml
     - Create repository interface for Todo operations
 
-2. Set up JWT authentication
+2. Set up JWT authentication (Done 18. June)
     - Add JWT dependencies to pom.xml
     - Create User entity and table
     - Implement JWT token generation and validation

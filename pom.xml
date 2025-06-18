@@ -46,7 +46,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!--  [oai_citation:21‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/get-started-tutorial.html?utm_source=chatgpt.com) -->
 
         <dependency>
             <!-- Spring Security Starter: Basic security (authentication/authorization) -->
@@ -89,14 +88,12 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>dynamodb</artifactId>
         </dependency>
-        <!--  [oai_citation:22‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) [oai_citation:23‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-maven.html?utm_source=chatgpt.com) -->
 
         <dependency>
             <!-- AWS SDK DynamoDB Enhanced Client: high-level object mapping API -->
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>dynamodb-enhanced</artifactId>
         </dependency>
-        <!--  [oai_citation:24‡GitHub](https://github.com/jwtk/jjwt/releases?utm_source=chatgpt.com) -->
 
         <!--
           5. AWS Lambda Dependencies
@@ -121,7 +118,6 @@
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>lambda</artifactId>
         </dependency>
-        <!--  [oai_citation:29‡AWS Documentation](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/setup-project-maven.html?utm_source=chatgpt.com) [oai_citation:30‡Maven Repository](https://mvnrepository.com/artifact/software.amazon.awssdk/bom?utm_source=chatgpt.com) -->
 
         <!--
           6. JWT (JJWT 0.12.6) Dependencies
@@ -132,7 +128,6 @@
             <artifactId>jjwt-api</artifactId>
             <version>0.12.6</version>
         </dependency>
-        <!--  [oai_citation:31‡Maven Repository](https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api/0.12.6?utm_source=chatgpt.com) [oai_citation:32‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
 
         <dependency>
             <!-- JJWT Impl: runtime implementation of JWT algorithms -->
@@ -141,7 +136,6 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-        <!--  [oai_citation:33‡Stack Overflow](https://stackoverflow.com/questions/74828917/maven-dependencies-for-jjwt-json-web-token-on-a-spring-boot-project?utm_source=chatgpt.com) [oai_citation:34‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
 
         <dependency>
             <!-- JJWT Jackson: Jackson integration (JSON serialization/deserialization for JWT claims) -->
@@ -150,7 +144,6 @@
             <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
-        <!--  [oai_citation:35‡Maven Central](https://central.sonatype.com/artifact/io.jsonwebtoken/jjwt-jackson?utm_source=chatgpt.com) [oai_citation:36‡GitHub](https://github.com/jwtk/jjwt?utm_source=chatgpt.com) -->
 
         <!--
           7. Logging (Log4j2)
@@ -209,6 +202,12 @@
             <version>0.11.5</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk11-core</artifactId>
+            <version>8.14.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -236,7 +235,6 @@
                     </to>
                 </configuration>
             </plugin>
-            <!--  [oai_citation:42‡Medium](https://medium.com/%40slatecoder/everything-you-need-to-know-about-maven-jib-plugin-9ebe051fa27b?utm_source=chatgpt.com) -->
         </plugins>
     </build>
 </project>
