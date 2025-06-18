@@ -95,26 +95,54 @@ curl -X DELETE http://localhost:8080/api/todos/{id}
     - Create User entity and table
     - Implement JWT token generation and validation
     - Create authentication endpoints (register, login)
+    - Implement SecurityConfig for protected endpoints
+    - Configure CORS for frontend communication
+    - Add token refresh mechanism
+    - Move JWT secret to environment variables
+    - Add password validation rules
+    - Implement rate limiting for auth endpoints
 
 3. Implement Todo CRUD operations
     - Create TodoController with REST endpoints
     - Implement TodoService with business logic
     - Add request/response DTOs
     - Add input validation
+    - Add authorization checks (users can only access their own todos)
 
 4. Add basic error handling
     - Create custom exceptions
     - Implement global exception handler
     - Add proper HTTP status codes
+    - Add validation error responses
+    - Add authentication error responses
+    - Add logging for errors
+    - Implement error tracking
 
 5. Write unit tests
     - Test TodoService
     - Test TodoController
     - Test repository layer
     - Add integration tests
+    - Test authentication flow
+    - Test authorization rules
+    - Test error handling
+    - Add security tests
 
 6. Set up AWS Lambda configuration
     - Configure Lambda handler
     - Add Lambda deployment configuration
     - Test Lambda function locally
+    - Set up CI/CD pipeline
+    - Configure AWS Secrets Manager for sensitive data
+    - Set up AWS CloudWatch for monitoring
+
+7. Frontend Integration
+    - Create React authentication pages
+    - Implement token storage and management
+    - Add protected route components
+    - Implement token refresh logic
+    - Add error handling and user feedback
+    - Add loading states
+    - Implement remember me functionality
+    - Add password reset flow
 
