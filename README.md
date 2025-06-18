@@ -84,6 +84,15 @@ curl -X DELETE http://localhost:8080/api/todos/{id}
 }
 ```
 
+### secrets and environment variables
+- secret is stored and injected as noted in ``application.yml``
+- can be injected as environment variable at runtime
+```bash
+export JWT_SECRET=mysupersecretkey
+mvn spring-boot:run
+```
+- or when running as docker container ``docker run -e JWT_SECRET=mysupersecretkey your-image``
+
 ## implementation roadmap
 1. Implement basic Todo entity and DynamoDB table configuration (Done 16. June)
     - Create Todo model class with fields (id, title, description, status, createdAt, updatedAt)

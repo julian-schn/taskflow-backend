@@ -25,6 +25,10 @@ public class AuthService {
         if (userRepository.findByUsername(username).isPresent()) {
             throw new RuntimeException("Username already exists");
         }
+        //Check password validity
+        if (password.length() < 8 || !password.matches(".*\\d.*") || !password.matches(".*[A-Za-z].*")) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long and contain both letters and numbers.");
+        }
 
         // Create new user
         User user = new User();
@@ -51,6 +55,27 @@ public class AuthService {
         }
 
         // Generate token
+        return jwtService.generateToken(username);
+    }
+
+    public String refreshToken(String token) {
+        // Extract username from token
+        String username = jwtService.extractUsername(token);
+        
+        if (username == null) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        // Verify token is valid
+        if (!jwtService.isTokenValid(token, username)) {
+            throw new RuntimeException("Token is invalid or expired");
+        }
+
+        // Verify user still exists in database
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Generate new token
         return jwtService.generateToken(username);
     }
 }
