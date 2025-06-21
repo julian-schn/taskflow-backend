@@ -1,5 +1,6 @@
 package controller;
 
+import jakarta.validation.Valid;
 import model.TodoRequest;
 import model.TodoResponse;
 import service.TodoService;
@@ -19,7 +20,7 @@ public class TodoController {
     }
 
     @PostMapping
-    public ResponseEntity<TodoResponse> createTodo(@RequestBody TodoRequest request) {
+    public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request) {
         return ResponseEntity.ok(todoService.createTodo(request));
     }
 
