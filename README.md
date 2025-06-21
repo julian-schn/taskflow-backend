@@ -111,7 +111,7 @@ mvn spring-boot:run
     - Add password validation rules
     - Implement rate limiting for auth endpoints
 
-3. Implement Todo CRUD operations
+3. Implement Todo CRUD operations (Done 21. June)
     - Create TodoController with REST endpoints
     - Implement TodoService with business logic
     - Add request/response DTOs

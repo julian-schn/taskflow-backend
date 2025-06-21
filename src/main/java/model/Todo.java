@@ -15,6 +15,8 @@ public class Todo {
     private Instant updatedAt;
     private String dueDate;
 
+    private String userId;
+
     @DynamoDbPartitionKey
     public String getId() {
         return id;
@@ -70,5 +72,13 @@ public class Todo {
 
     public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
