@@ -127,7 +127,7 @@ mvn spring-boot:run
     - Add logging for errors
     - Implement error tracking
 
-5. Write unit tests
+5. Write unit tests (Done 24. June)
     - Test TodoService
     - Test TodoController
     - Test repository layer
