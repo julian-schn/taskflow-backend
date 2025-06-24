@@ -118,7 +118,7 @@ mvn spring-boot:run
     - Add input validation
     - Add authorization checks (users can only access their own todos)
 
-4. Add basic error handling
+4. Add basic error handling (Done 24. June)
     - Create custom exceptions
     - Implement global exception handler
     - Add proper HTTP status codes
