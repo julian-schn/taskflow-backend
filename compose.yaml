@@ -40,3 +40,16 @@ services:
       - DEFAULT_REGION=eu-central-1
     volumes:
       - "./localstack:/var/lib/localstack"
+
+  backend:
+    build: .
+    container_name: taskflow-backend
+    depends_on:
+      - dynamodb-local
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    command: ["java", "-jar", "/app/target/taskflow-backend-0.0.1-SNAPSHOT.jar"]
+    volumes:
+      - .:/app
