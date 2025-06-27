@@ -4,7 +4,7 @@ import auth.AuthRequest;
 import auth.AuthResponse;
 import controller.AuthController;
 import service.AuthService;
-import auth.JwtService;
+import com.taskflow.taskflowbackend.auth.JwtService;
 import service.RateLimiterService;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;

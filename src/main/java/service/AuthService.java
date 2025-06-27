@@ -1,6 +1,6 @@
 package service;
 
-import auth.JwtService;
+import com.taskflow.taskflowbackend.auth.JwtService;
 import model.User;
 import repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

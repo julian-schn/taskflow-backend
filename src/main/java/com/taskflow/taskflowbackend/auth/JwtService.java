@@ -1,4 +1,4 @@
-package auth;
+package com.taskflow.taskflowbackend.auth;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -60,4 +60,4 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-}
+} 

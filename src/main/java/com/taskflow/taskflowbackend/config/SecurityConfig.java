@@ -1,6 +1,6 @@
-package config;
+package com.taskflow.taskflowbackend.config;
 
-import auth.JwtAuthenticationFilter;
+import com.taskflow.taskflowbackend.auth.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +16,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import auth.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -40,7 +39,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
@@ -67,4 +67,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-}
+} 

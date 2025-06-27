@@ -1,4 +1,4 @@
-package auth;
+package com.taskflow.taskflowbackend.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.AntPathMatcher;
 
 import model.User;
 import repository.UserRepository;
@@ -60,4 +61,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-}
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return new AntPathMatcher().match("/api/auth/**", path);
+    }
+} 

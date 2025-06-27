@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import service.AuthService;
 import service.RateLimiterService;
-import auth.JwtService;
+import com.taskflow.taskflowbackend.auth.JwtService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
