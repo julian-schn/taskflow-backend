@@ -16,7 +16,6 @@
     <groupId>com.taskflow</groupId>
     <artifactId>taskflow-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <n>taskflow-backend</n>
     <description>Taskflow Backend: Spring Boot + AWS Lambda + DynamoDB + JWT</description>
 
     <properties>
