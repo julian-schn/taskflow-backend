@@ -5,6 +5,7 @@ import model.User;
 import repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class AuthServiceTest {
         String password = "password";
         User user = new User();
         user.setUsername(username);
-        user.setPassword(password); // In real use, this would be encoded
+        user.setPassword(new BCryptPasswordEncoder().encode(password));
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(jwtService.generateToken(username)).thenReturn("fake-jwt");
