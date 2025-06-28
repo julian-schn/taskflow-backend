@@ -2,6 +2,10 @@ spring:
   application:
     name: taskflow-backend
   
+  # Allow circular references for local development
+  main:
+    allow-circular-references: true
+  
   # H2 in-memory database for local smoke testing
   datasource:
     url: jdbc:h2:mem:testdb
