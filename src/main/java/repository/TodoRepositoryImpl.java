@@ -2,6 +2,7 @@ package repository;
 
 import model.Todo;
 import repository.TodoRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -10,6 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Repository
+@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = false)
 public class TodoRepositoryImpl implements TodoRepository {
 
     private final DynamoDbEnhancedClient enhancedClient;

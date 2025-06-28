@@ -61,7 +61,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_PROFILES_ACTIVE=local
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
     command: ["java", "-jar", "/app/app.jar"]

@@ -2,6 +2,7 @@ package repository;
 
 import model.User;
 import repository.UserRepository;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -9,6 +10,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.util.Optional;
 
 @Repository
+@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = false)
 public class UserRepositoryImpl implements UserRepository {
 
     private final DynamoDbTable<User> userTable;
