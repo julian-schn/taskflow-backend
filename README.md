@@ -84,6 +84,51 @@ curl -X DELETE http://localhost:8080/api/todos/{id}
 }
 ```
 
+### CORS Configuration
+The application includes a comprehensive CORS (Cross-Origin Resource Sharing) configuration that supports both development and production environments.
+
+#### Development Environment
+- Supports common frontend development ports: 3000 (React), 3001, 8080 (Vue.js), 4200 (Angular)
+- Allows both localhost and 127.0.0.1 variants
+- Configuration is defined in `application.yml`
+
+#### Production Environment
+- Configured in `application-prod.yml`
+- **Important**: Update the `cors.allowed-origins` list with your actual production domains
+- Example:
+```yaml
+cors:
+  allowed-origins:
+    - https://yourdomain.com
+    - https://www.yourdomain.com
+    - https://app.yourdomain.com
+```
+
+#### Supported Features
+- **HTTP Methods**: GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD
+- **Headers**: Authorization, Content-Type, Accept, Origin, and more
+- **Credentials**: Enabled for authentication support
+- **Preflight Caching**: 1 hour cache for OPTIONS requests
+- **Exposed Headers**: Authorization, pagination headers, rate limit headers
+
+#### Customizing CORS
+To modify CORS settings, update the configuration in the appropriate `application-*.yml` file:
+```yaml
+cors:
+  allowed-origins:
+    - https://your-frontend-domain.com
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+  allowed-headers:
+    - Authorization
+    - Content-Type
+  allow-credentials: true
+  max-age: 3600
+```
+
 ### secrets and environment variables
 - secret are stored and injected as noted in ``application.yml``
 - can be injected as environment variable at runtime
