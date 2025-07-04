@@ -113,15 +113,6 @@ the application supports three different profiles for different environments:
 3. check with ``aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-central-1`` (requires aws cli) if tables exist, should return "todos" and "users"
 4. hit endpoints with api calls (e.g. ``POST ...``)
 
-#### configuring aws cli
-- you need to run ``aws configure`` first after installing the cli, this prompts you to input some values, these are as follows:
-```bash
-export AWS_ACCESS_KEY_ID=dummy
-export AWS_SECRET_ACCESS_KEY=dummy
-export AWS_DEFAULT_REGION=eu-central-1
-export AWS_DEFAULT_OUTPUT=json
-```
-
 ### how to test the api
 
 #### option 1: local profile with h2 database (recommended)
