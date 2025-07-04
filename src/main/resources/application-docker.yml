@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: taskflow-backend
+
+server:
+  port: 8081
+
+# DynamoDB configuration for Docker
+aws:
+  dynamodb:
+    endpoint: http://dynamodb-local:8000
+
+dynamodb:
+  enabled: true
+
+jwt:
+  secret: ${JWT_SECRET:your-default-secret}
+  expiration-ms: 86400000

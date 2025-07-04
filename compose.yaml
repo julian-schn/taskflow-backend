@@ -59,9 +59,9 @@ services:
     depends_on:
       - dynamodb-local
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
-      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_PROFILES_ACTIVE=docker
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
-    command: ["java", "-jar", "/app/app.jar"]
+    command: [ "java", "-jar", "/app/app.jar" ]
