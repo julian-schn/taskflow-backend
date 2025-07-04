@@ -14,16 +14,16 @@ import java.util.List;
 public class CorsConfig {
 
     @Value("${cors.allowed-origins}")
-    private List<String> allowedOrigins;
+    private String allowedOriginsString;
 
     @Value("${cors.allowed-methods}")
-    private List<String> allowedMethods;
+    private String allowedMethodsString;
 
     @Value("${cors.allowed-headers}")
-    private List<String> allowedHeaders;
+    private String allowedHeadersString;
 
     @Value("${cors.exposed-headers}")
-    private List<String> exposedHeaders;
+    private String exposedHeadersString;
 
     @Value("${cors.allow-credentials}")
     private boolean allowCredentials;
@@ -34,6 +34,12 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Parse comma-separated strings into lists
+        List<String> allowedOrigins = Arrays.asList(allowedOriginsString.split(","));
+        List<String> allowedMethods = Arrays.asList(allowedMethodsString.split(","));
+        List<String> allowedHeaders = Arrays.asList(allowedHeadersString.split(","));
+        List<String> exposedHeaders = Arrays.asList(exposedHeadersString.split(","));
         
         // Set CORS configuration from properties
         configuration.setAllowedOrigins(allowedOrigins);

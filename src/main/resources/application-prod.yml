@@ -33,6 +33,7 @@ rate:
 
 # CORS Configuration for Production
 # Update these with your actual production domains
+# todo: add production domains
 cors:
   allowed-origins:
     - https://yourdomain.com

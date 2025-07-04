@@ -6,6 +6,15 @@ spring:
   main:
     allow-circular-references: true
   
+  # Disable Docker Compose for local development
+  docker:
+    compose:
+      enabled: false
+
+# Run local server on port 8081 to avoid conflicts
+server:
+  port: 8081
+
   # H2 in-memory database for local smoke testing
   datasource:
     url: jdbc:h2:mem:testdb
