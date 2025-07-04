@@ -2,7 +2,7 @@
 
 ## quickstart
 
-get the taskflow backend running in 5 minutes!
+everything you need for setting up taskflow to run locally
 
 ### prerequisites
 - java 17+ 
