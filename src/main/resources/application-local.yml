@@ -11,16 +11,17 @@ spring:
     compose:
       enabled: false
 
-# Run local server on port 8081 to avoid conflicts
+# Server Configuration
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
-  # H2 in-memory database for local smoke testing
+# Database Configuration
+spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: ${DB_URL:jdbc:h2:mem:testdb}
     driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
   
   h2:
     console:
@@ -36,16 +37,18 @@ server:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
 
-# Disable DynamoDB for local testing
+# DynamoDB Configuration
 dynamodb:
-  enabled: false
+  enabled: ${DYNAMODB_ENABLED:false}
 
+# JWT Configuration
 jwt:
   secret: ${JWT_SECRET:your-default-secret}
-  expiration-ms: 86400000
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
+# Rate Limiting
 rate:
   limit:
     auth:
-      requests-per-minute: 5
-      refresh-requests-per-minute: 10 
+      requests-per-minute: ${RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE:5}
+      refresh-requests-per-minute: ${RATE_LIMIT_REFRESH_REQUESTS_PER_MINUTE:10} 

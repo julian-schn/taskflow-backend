@@ -16,8 +16,8 @@ services:
     depends_on:
       - dynamodb-local
     environment:
-      AWS_ACCESS_KEY_ID: dummy
-      AWS_SECRET_ACCESS_KEY: dummy
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:dummy}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:dummy}
     command: >
       sh -c '
       until aws dynamodb list-tables --endpoint-url http://dynamodb-local:8000 --region eu-central-1 > /dev/null 2>&1; do
@@ -62,6 +62,6 @@ services:
       - "8081:8081"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - AWS_ACCESS_KEY_ID=dummy
-      - AWS_SECRET_ACCESS_KEY=dummy
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:dummy}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:dummy}
     command: [ "java", "-jar", "/app/app.jar" ]

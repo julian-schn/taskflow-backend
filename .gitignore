@@ -35,3 +35,8 @@ build/
 # Ignore SSL certificates and keys
 localstack/cache/*.pem
 localstack/cache/*.key
+
+# Environment variables
+.env
+.env.local
+.env.production
