@@ -11,9 +11,9 @@ get the taskflow backend running in 5 minutes!
 
 ### setup steps
 
-1. **clone and navigate**
+1. **clone and navigate** (if not done yet)
    ```bash
-   git clone <your-repo-url>
+   git clone https://gitlab.mi.hdm-stuttgart.de/soft-dev-for-coud/taskflow-backend.git
    cd taskflow-backend
    ```
 
@@ -40,7 +40,7 @@ get the taskflow backend running in 5 minutes!
 
 5. **run the application**
    ```bash
-   # for local development (uses h2 database)
+   # for local development (uses h2 database) recommended
    mvn spring-boot:run -Dspring-boot.run.profiles=local
    
    # or if you want to use dynamodb
@@ -63,29 +63,58 @@ your application should now be running at:
 
 ## debugging/faq
 
+### spring boot profiles
+
+the application supports three different profiles for different environments:
+
+#### local profile (recommended for development)
+- **purpose**: local development and testing without external dependencies
+- **database**: h2 in-memory database (fast startup, no setup required)
+- **port**: 8081
+- **features**: 
+  - h2 console available at http://localhost:8081/h2-console
+  - automatic table creation
+  - debug logging enabled
+  - circular references allowed for development
+- **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=local`
+
+#### docker profile
+- **purpose**: containerized deployment with dynamodb
+- **database**: dynamodb local via docker compose
+- **port**: 8081
+- **features**:
+  - full aws dynamodb integration
+  - automatic table creation via docker compose
+  - production-like environment locally
+- **usage**: `docker-compose up -d` then `mvn spring-boot:run`
+
+#### prod profile
+- **purpose**: production deployment
+- **database**: aws dynamodb (cloud)
+- **port**: 8080
+- **features**:
+  - production security settings
+  - cloud aws services
+  - optimized for performance
+- **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=prod`
+
+**recommendation**: use the `local` profile for development and testing. it provides the fastest setup and doesn't require docker or aws services.
+
 ### how to run local dynamodb docker container
 1. start container by running ``docker-compose up -d`` from project root
 2. stop container by running ``docker-compose down`` from project root
 3. check running docker containers with ``docker container ls``
 
+**note:** the docker compose setup automatically creates the required tables (todos and users) when starting up, so manual table creation is no longer needed.
+
 ### verify docker dynamodb setup
 1. start container as explained above
-2. run springboot app(``mvn spring-boot:run``)
-3. from different console, use AWS cli pointing to ``localhost:8000`` to create table as follows (this command is normally run when running ``docker compose``):
-```bash
-aws dynamodb create-table \
-  --table-name todos \
-  --attribute-definitions AttributeName=id,AttributeType=S \
-  --key-schema AttributeName=id,KeyType=HASH \
-  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-  --endpoint-url http://localhost:8000 \
-  --region eu-central-1
-```
-4. check with ``aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-central-1`` (requires aws cli) if tables exist, should return "todos"
-5. hit endpoints with with API calls (e.g. ``POST ...``)
+2. run springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
+3. check with ``aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-central-1`` (requires aws cli) if tables exist, should return "todos" and "users"
+4. hit endpoints with api calls (e.g. ``POST ...``)
 
 #### configuring aws cli
-- you need to run ``aws configure`` first after installing the cli, this prompts you to inputs some calues, these are as follows:
+- you need to run ``aws configure`` first after installing the cli, this prompts you to input some values, these are as follows:
 ```bash
 export AWS_ACCESS_KEY_ID=dummy
 export AWS_SECRET_ACCESS_KEY=dummy
@@ -94,35 +123,84 @@ export AWS_DEFAULT_OUTPUT=json
 ```
 
 ### how to test the api
-1. start local dynamodb by running ``docker-compose up -d`` from project root
-2. start springboot app by running ``mvn spring-boot:run`` from project root
+
+**recommended approach (local profile with h2 database):**
+1. start springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
+2. the app will automatically create an h2 in-memory database with all required tables
+3. access h2 console at http://localhost:8081/h2-console if you want to inspect the database
+4. use curl commands to test endpoints:
+
+**alternative approach (with dynamodb):**
+1. start local dynamodb: ``docker-compose up -d``
+2. start springboot app: ``mvn spring-boot:run`` (uses default profile)
 3. use curl commands to test endpoints:
+
+**note:** its recommended to use the local profile approach for development and testing as it's faster and doesn't require docker or aws services.
 
 #### create todo
 ```bash
-curl -X POST http://localhost:8080/api/todos \
+curl -X POST http://localhost:8081/api/todos \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "My first todo",
-    "description": "This is a test todo"
+    "title": "my first todo",
+    "description": "this is a test todo"
   }'
 ```
 
 #### get all todos
 ```bash
-curl http://localhost:8080/api/todos
+curl http://localhost:8081/api/todos
 ```
 
 #### get specific todo
 ```bash
 # replace {id} with actual todo id from create response
-curl http://localhost:8080/api/todos/{id}
+curl http://localhost:8081/api/todos/{id}
 ```
 
-### delete todo
+#### delete todo
 ```bash
 # replace {id} with actual todo id
-curl -X DELETE http://localhost:8080/api/todos/{id}
+curl -X DELETE http://localhost:8081/api/todos/{id}
+```
+
+#### authentication endpoints
+
+**register a new user:**
+```bash
+curl -X POST http://localhost:8081/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "password123"
+  }'
+```
+
+**login:**
+```bash
+curl -X POST http://localhost:8081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "password123"
+  }'
+```
+
+**refresh token:**
+```bash
+curl -X POST http://localhost:8081/api/auth/refresh \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**note:** all todo endpoints require authentication. include the jwt token in the authorization header:
+```bash
+curl -X POST http://localhost:8081/api/todos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "my first todo",
+    "description": "this is a test todo"
+  }'
 ```
 
 #### example response format
@@ -277,31 +355,31 @@ the application uses environment variables for configuration. create a `.env` fi
     - add logging for errors
     - implement error tracking
 
-5. Write unit tests (Done 24. June)
-    - Test TodoService
-    - Test TodoController
-    - Test repository layer
-    - Add integration tests
-    - Test authentication flow
-    - Test authorization rules
-    - Test error handling
-    - Add security tests
+5. write unit tests (done 24. june)
+    - test todoservice
+    - test todocontroller
+    - test repository layer
+    - add integration tests
+    - test authentication flow
+    - test authorization rules
+    - test error handling
+    - add security tests
 
-6. Set up AWS Lambda configuration
-    - Configure Lambda handler
-    - Add Lambda deployment configuration
-    - Test Lambda function locally
-    - Set up CI/CD pipeline
-    - Configure AWS Secrets Manager for sensitive data
-    - Set up AWS CloudWatch for monitoring
+6. set up aws lambda configuration
+    - configure lambda handler
+    - add lambda deployment configuration
+    - test lambda function locally
+    - set up ci/cd pipeline
+    - configure aws secrets manager for sensitive data
+    - set up aws cloudwatch for monitoring
 
-7. Frontend Integration
-    - Create React authentication pages
-    - Implement token storage and management
-    - Add protected route components
-    - Implement token refresh logic
-    - Add error handling and user feedback
-    - Add loading states
-    - Implement remember me functionality
-    - Add password reset flow
+7. frontend integration
+    - create react authentication pages
+    - implement token storage and management
+    - add protected route components
+    - implement token refresh logic
+    - add error handling and user feedback
+    - add loading states
+    - implement remember me functionality
+    - add password reset flow
 
