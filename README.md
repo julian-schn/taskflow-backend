@@ -5,7 +5,7 @@
 everything you need for setting up taskflow to run locally
 
 ### prerequisites
-- java 17+ 
+- java 17+
 - maven 3.6+
 - docker (optional, for dynamodb)
 
@@ -32,19 +32,10 @@ everything you need for setting up taskflow to run locally
    mvn clean install
    ```
 
-4. **start services (optional)**
-   if you want to use dynamodb instead of h2:
+4. **run the application**
    ```bash
-   docker-compose up -d
-   ```
-
-5. **run the application**
-   ```bash
-   # for local development (uses h2 database) recommended
+   # for local development (uses h2 database) - recommended
    mvn spring-boot:run -Dspring-boot.run.profiles=local
-   
-   # or if you want to use dynamodb
-   mvn spring-boot:run
    ```
 
 your application should now be running at:
@@ -60,6 +51,7 @@ your application should now be running at:
 - jwt
 - docker
 - log4j
+- h2 database for local testing
 
 ## debugging/faq
 
@@ -71,34 +63,42 @@ the application supports three different profiles for different environments:
 - **purpose**: local development and testing without external dependencies
 - **database**: h2 in-memory database (fast startup, no setup required)
 - **port**: 8081
-- **features**: 
-  - h2 console available at http://localhost:8081/h2-console
-  - automatic table creation
-  - debug logging enabled
-  - circular references allowed for development
+- **features**:
+   - h2 console available at http://localhost:8081/h2-console
+   - automatic table creation
+   - debug logging enabled
+   - circular references allowed for development
 - **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=local`
 
 #### docker profile
-- **purpose**: containerized deployment with dynamodb
+- **purpose**: local development with dynamodb container
 - **database**: dynamodb local via docker compose
 - **port**: 8081
 - **features**:
-  - full aws dynamodb integration
-  - automatic table creation via docker compose
-  - production-like environment locally
-- **usage**: `docker-compose up -d` then `mvn spring-boot:run`
+   - full aws dynamodb integration
+   - automatic table creation via docker compose
+   - production-like environment locally
+- **usage**: `docker-compose up -d` then `mvn spring-boot:run -Dspring-boot.run.profiles=docker`
 
 #### prod profile
 - **purpose**: production deployment
 - **database**: aws dynamodb (cloud)
 - **port**: 8080
 - **features**:
-  - production security settings
-  - cloud aws services
-  - optimized for performance
+   - production security settings
+   - cloud aws services
+   - optimized for performance
 - **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=prod`
 
 **recommendation**: use the `local` profile for development and testing. it provides the fastest setup and doesn't require docker or aws services.
+
+### profile decision matrix
+
+| profile | database | port | docker required? | aws required? | use case |
+|---------|----------|------|------------------|---------------|----------|
+| local | h2 in-memory | 8081 | no | no | quick development |
+| docker | dynamodb local | 8081 | yes | no | test with dynamodb |
+| prod | aws dynamodb | 8080 | no | yes | production deployment |
 
 ### how to run local dynamodb docker container
 1. start container by running ``docker-compose up -d`` from project root
@@ -109,7 +109,7 @@ the application supports three different profiles for different environments:
 
 ### verify docker dynamodb setup
 1. start container as explained above
-2. run springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
+2. run springboot app with docker profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=docker``
 3. check with ``aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-central-1`` (requires aws cli) if tables exist, should return "todos" and "users"
 4. hit endpoints with api calls (e.g. ``POST ...``)
 
@@ -124,23 +124,39 @@ export AWS_DEFAULT_OUTPUT=json
 
 ### how to test the api
 
-**recommended approach (local profile with h2 database):**
+#### option 1: local profile with h2 database (recommended)
 1. start springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
 2. the app will automatically create an h2 in-memory database with all required tables
 3. access h2 console at http://localhost:8081/h2-console if you want to inspect the database
-4. use curl commands to test endpoints:
+4. use curl commands to test endpoints (see examples below)
 
-**alternative approach (with dynamodb):**
+#### option 2: docker profile with dynamodb
 1. start local dynamodb: ``docker-compose up -d``
-2. start springboot app: ``mvn spring-boot:run`` (uses default profile)
-3. use curl commands to test endpoints:
+2. start springboot app with docker profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=docker``
+3. use curl commands to test endpoints (see examples below)
+
+#### option 3: prod profile with aws dynamodb
+1. configure aws credentials (real values, not dummy)
+2. start springboot app with prod profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=prod``
+3. use curl commands to test endpoints (port 8080 instead of 8081)
 
 **note:** its recommended to use the local profile approach for development and testing as it's faster and doesn't require docker or aws services.
 
 #### create todo
 ```bash
+# local and docker profiles (port 8081)
 curl -X POST http://localhost:8081/api/todos \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "my first todo",
+    "description": "this is a test todo"
+  }'
+
+# prod profile (port 8080)
+curl -X POST http://localhost:8080/api/todos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
     "title": "my first todo",
     "description": "this is a test todo"
@@ -149,26 +165,47 @@ curl -X POST http://localhost:8081/api/todos \
 
 #### get all todos
 ```bash
-curl http://localhost:8081/api/todos
+# local and docker profiles
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8081/api/todos
+
+# prod profile
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8080/api/todos
 ```
 
 #### get specific todo
 ```bash
 # replace {id} with actual todo id from create response
-curl http://localhost:8081/api/todos/{id}
+# local and docker profiles
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8081/api/todos/{id}
+
+# prod profile
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8080/api/todos/{id}
 ```
 
 #### delete todo
 ```bash
 # replace {id} with actual todo id
-curl -X DELETE http://localhost:8081/api/todos/{id}
+# local and docker profiles
+curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8081/api/todos/{id}
+
+# prod profile
+curl -X DELETE -H "Authorization: Bearer YOUR_JWT_TOKEN" http://localhost:8080/api/todos/{id}
 ```
 
 #### authentication endpoints
 
 **register a new user:**
 ```bash
+# local and docker profiles
 curl -X POST http://localhost:8081/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "password123"
+  }'
+
+# prod profile
+curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -178,7 +215,16 @@ curl -X POST http://localhost:8081/api/auth/register \
 
 **login:**
 ```bash
+# local and docker profiles
 curl -X POST http://localhost:8081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "password": "password123"
+  }'
+
+# prod profile
+curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -188,20 +234,16 @@ curl -X POST http://localhost:8081/api/auth/login \
 
 **refresh token:**
 ```bash
+# local and docker profiles
 curl -X POST http://localhost:8081/api/auth/refresh \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# prod profile
+curl -X POST http://localhost:8080/api/auth/refresh \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-**note:** all todo endpoints require authentication. include the jwt token in the authorization header:
-```bash
-curl -X POST http://localhost:8081/api/todos \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{
-    "title": "my first todo",
-    "description": "this is a test todo"
-  }'
-```
+**note:** all todo endpoints require authentication. include the jwt token in the authorization header as shown in the examples above.
 
 #### example response format
 ```json
@@ -218,12 +260,12 @@ curl -X POST http://localhost:8081/api/todos \
 ### cors configuration
 the application includes a comprehensive cors (cross-origin resource sharing) configuration that supports both development and production environments.
 
-#### development environment
+#### development environment (local and docker profiles)
 - supports common frontend development ports: 3000 (react), 3001, 8080 (vue.js), 4200 (angular)
 - allows both localhost and 127.0.0.1 variants
-- configuration is defined in `application.yml`
+- configuration is defined in `application.yml` and `application-docker.yml`
 
-#### production environment
+#### production environment (prod profile)
 - configured in `application-prod.yml`
 - **important**: update the `cors.allowed-origins` list with your actual production domains
 - example:
@@ -264,7 +306,31 @@ cors:
 
 the application uses environment variables for configuration. create a `.env` file in the project root with the following variables:
 
-#### required environment variables
+#### environment variables by profile
+
+**local profile (minimal setup):**
+- `jwt_secret` - secret key for jwt token signing (can use dummy value for development)
+- `jwt_expiration_ms` - jwt token expiration time in milliseconds (default: 86400000)
+- `server_port` - application port (default: 8081)
+
+**docker profile (dynamodb local):**
+- `jwt_secret` - secret key for jwt token signing (can use dummy value for development)
+- `jwt_expiration_ms` - jwt token expiration time in milliseconds (default: 86400000)
+- `aws_access_key_id` - aws access key (use 'dummy' for local development)
+- `aws_secret_access_key` - aws secret key (use 'dummy' for local development)
+- `aws_default_region` - aws region (default: eu-central-1)
+- `aws_dynamodb_endpoint` - dynamodb endpoint (default: http://localhost:8000)
+- `server_port` - application port (default: 8081)
+
+**prod profile (all variables required):**
+- `jwt_secret` - secret key for jwt token signing (required for production)
+- `jwt_expiration_ms` - jwt token expiration time in milliseconds (default: 86400000)
+- `aws_access_key_id` - aws access key (real production value)
+- `aws_secret_access_key` - aws secret key (real production value)
+- `aws_default_region` - aws region (default: eu-central-1)
+- `server_port` - application port (default: 8080)
+
+#### complete environment variable reference
 
 **jwt configuration:**
 - `jwt_secret` - secret key for jwt token signing (required for production)
@@ -282,14 +348,14 @@ the application uses environment variables for configuration. create a `.env` fi
 - `db_password` - database password (default: empty)
 
 **server configuration:**
-- `server_port` - application port (default: 8081 for local, 8080 for production)
+- `server_port` - application port (default: 8081 for local/docker, 8080 for prod)
 
 **rate limiting:**
 - `rate_limit_auth_requests_per_minute` - auth requests per minute (default: 5)
 - `rate_limit_refresh_requests_per_minute` - refresh requests per minute (default: 10)
 
 **dynamodb configuration:**
-- `dynamodb_enabled` - enable dynamodb (default: false for local, true for production)
+- `dynamodb_enabled` - enable dynamodb (default: false for local, true for docker/prod)
 - `dynamodb_table_name` - dynamodb table name (default: todos)
 
 **cors configuration:**
@@ -314,7 +380,6 @@ the application uses environment variables for configuration. create a `.env` fi
    export jwt_secret=your-super-secret-key
    export aws_access_key_id=your-aws-access-key
    export aws_secret_access_key=your-aws-secret-key
-   export db_url=your-production-db-url
    ```
 
 4. **for docker compose**, the `.env` file will be automatically loaded
@@ -323,63 +388,62 @@ the application uses environment variables for configuration. create a `.env` fi
 
 ## implementation roadmap
 1. implement basic todo entity and dynamodb table configuration (done 16. june)
-    - create todo model class with fields (id, title, description, status, createdat, updatedat)
-    - set up dynamodb table configuration in application.yml
-    - create repository interface for todo operations
+   - create todo model class with fields (id, title, description, status, createdat, updatedat)
+   - set up dynamodb table configuration in application.yml
+   - create repository interface for todo operations
 
 2. set up jwt authentication (done 18. june)
-    - add jwt dependencies to pom.xml
-    - create user entity and table
-    - implement jwt token generation and validation
-    - create authentication endpoints (register, login)
-    - implement securityconfig for protected endpoints
-    - configure cors for frontend communication
-    - add token refresh mechanism
-    - move jwt secret to environment variables
-    - add password validation rules
-    - implement rate limiting for auth endpoints
+   - add jwt dependencies to pom.xml
+   - create user entity and table
+   - implement jwt token generation and validation
+   - create authentication endpoints (register, login)
+   - implement securityconfig for protected endpoints
+   - configure cors for frontend communication
+   - add token refresh mechanism
+   - move jwt secret to environment variables
+   - add password validation rules
+   - implement rate limiting for auth endpoints
 
 3. implement todo crud operations (done 21. june)
-    - create todocontroller with rest endpoints
-    - implement todoservice with business logic
-    - add request/response dtos
-    - add input validation
-    - add authorization checks (users can only access their own todos)
+   - create todocontroller with rest endpoints
+   - implement todoservice with business logic
+   - add request/response dtos
+   - add input validation
+   - add authorization checks (users can only access their own todos)
 
 4. add basic error handling (done 24. june)
-    - create custom exceptions
-    - implement global exception handler
-    - add proper http status codes
-    - add validation error responses
-    - add authentication error responses
-    - add logging for errors
-    - implement error tracking
+   - create custom exceptions
+   - implement global exception handler
+   - add proper http status codes
+   - add validation error responses
+   - add authentication error responses
+   - add logging for errors
+   - implement error tracking
 
 5. write unit tests (done 24. june)
-    - test todoservice
-    - test todocontroller
-    - test repository layer
-    - add integration tests
-    - test authentication flow
-    - test authorization rules
-    - test error handling
-    - add security tests
+   - test todoservice
+   - test todocontroller
+   - test repository layer
+   - add integration tests
+   - test authentication flow
+   - test authorization rules
+   - test error handling
+   - add security tests
 
 6. set up aws lambda configuration
-    - configure lambda handler
-    - add lambda deployment configuration
-    - test lambda function locally
-    - set up ci/cd pipeline
-    - configure aws secrets manager for sensitive data
-    - set up aws cloudwatch for monitoring
+   - configure lambda handler
+   - add lambda deployment configuration
+   - test lambda function locally
+   - set up ci/cd pipeline
+   - configure aws secrets manager for sensitive data
+   - set up aws cloudwatch for monitoring
 
 7. frontend integration
-    - create react authentication pages
-    - implement token storage and management
-    - add protected route components
-    - implement token refresh logic
-    - add error handling and user feedback
-    - add loading states
-    - implement remember me functionality
-    - add password reset flow
-
+   - create react authentication pages
+   - implement token storage and management
+   - add protected route components
+   - implement token refresh logic
+   - add error handling and user feedback
+   - add loading states
+   - implement remember me functionality
+   - add password reset flow
