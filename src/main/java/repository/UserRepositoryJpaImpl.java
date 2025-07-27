@@ -25,7 +25,8 @@ public class UserRepositoryJpaImpl implements UserRepository {
         UserJpa userJpa = new UserJpa();
         userJpa.setUsername(user.getUsername());
         userJpa.setPassword(user.getPassword());
-        userJpa.setEmail(user.getRole());
+        userJpa.setRole(user.getRole());
+        userJpa.setEmail(""); // Set empty email for now, could be updated later
         userJpaRepository.save(userJpa);
     }
 
@@ -61,7 +62,7 @@ public class UserRepositoryJpaImpl implements UserRepository {
         user.setId(userJpa.getId().toString());
         user.setUsername(userJpa.getUsername());
         user.setPassword(userJpa.getPassword());
-        user.setRole(userJpa.getEmail());
+        user.setRole(userJpa.getRole());
         return user;
     }
 } 
