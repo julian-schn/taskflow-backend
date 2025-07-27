@@ -11,12 +11,7 @@ spring:
     compose:
       enabled: false
 
-# Server Configuration
-server:
-  port: ${SERVER_PORT:8081}
-
-# Database Configuration
-spring:
+  # Database Configuration
   datasource:
     url: ${DB_URL:jdbc:h2:mem:testdb}
     driver-class-name: org.h2.Driver
@@ -36,6 +31,10 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
         format_sql: true
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8081}
 
 # DynamoDB Configuration
 dynamodb:
