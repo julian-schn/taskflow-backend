@@ -42,7 +42,7 @@ dynamodb:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:your-default-secret}
+  secret: ${JWT_SECRET:your-super-secure-jwt-secret-key-that-is-at-least-256-bits-long-for-production-use}
   expiration-ms: ${JWT_EXPIRATION_MS:86400000}
 
 # Rate Limiting
@@ -50,4 +50,14 @@ rate:
   limit:
     auth:
       requests-per-minute: ${RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE:5}
-      refresh-requests-per-minute: ${RATE_LIMIT_REFRESH_REQUESTS_PER_MINUTE:10} 
+      refresh-requests-per-minute: ${RATE_LIMIT_REFRESH_REQUESTS_PER_MINUTE:10}
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always 
