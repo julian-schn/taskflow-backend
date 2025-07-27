@@ -248,6 +248,122 @@ curl -X POST http://localhost:8080/api/auth/refresh \
 }
 ```
 
+### health endpoints
+the application provides comprehensive health check endpoints to monitor database connectivity and system status. these endpoints are publicly accessible and do not require authentication.
+
+#### ping endpoint
+basic service availability check to verify the application is running.
+```bash
+# local and docker profiles
+curl http://localhost:8081/api/health/ping
+
+# prod profile
+curl http://localhost:8080/api/health/ping
+```
+
+**response:**
+```json
+{
+  "status": "UP",
+  "message": "Service is running",
+  "timestamp": "1753639629182"
+}
+```
+
+#### database health check
+detailed database connectivity status including database type, version, and connection details.
+```bash
+# local and docker profiles
+curl http://localhost:8081/api/health/database
+
+# prod profile
+curl http://localhost:8080/api/health/database
+```
+
+**response:**
+```json
+{
+  "status": "UP",
+  "database": "H2",
+  "version": "2.3.232 (2024-08-11)",
+  "url": "jdbc:h2:mem:testdb",
+  "connection": "valid"
+}
+```
+
+#### system status
+complete system health including database status and application information.
+```bash
+# local and docker profiles
+curl http://localhost:8081/api/health/status
+
+# prod profile
+curl http://localhost:8080/api/health/status
+```
+
+**response:**
+```json
+{
+  "status": "UP",
+  "application": "taskflow-backend",
+  "timestamp": 1753639711530,
+  "database_connected": true,
+  "database_status": "H2 2.3.232 (2024-08-11) - Connected",
+  "database": {
+    "status": "UP",
+    "database": "H2",
+    "version": "2.3.232 (2024-08-11)",
+    "url": "jdbc:h2:mem:testdb",
+    "connection": "valid"
+  }
+}
+```
+
+#### actuator health endpoint
+built-in spring boot actuator health check with detailed component status.
+```bash
+# local and docker profiles
+curl http://localhost:8081/actuator/health
+
+# prod profile
+curl http://localhost:8080/actuator/health
+```
+
+**response:**
+```json
+{
+  "status": "UP",
+  "components": {
+    "db": {
+      "status": "UP",
+      "details": {
+        "database": "H2",
+        "validationQuery": "isValid()"
+      }
+    },
+    "diskSpace": {
+      "status": "UP",
+      "details": {
+        "total": 994662584320,
+        "free": 465283837952,
+        "threshold": 10485760
+      }
+    },
+    "ping": {
+      "status": "UP"
+    }
+  }
+}
+```
+
+#### health endpoint usage
+- **monitoring**: use these endpoints for application monitoring and alerting
+- **load balancers**: configure load balancers to use `/api/health/ping` for health checks
+- **debugging**: use `/api/health/database` to troubleshoot database connectivity issues
+- **status pages**: integrate `/api/health/status` into status page dashboards
+
+**note:** if the database is down, the `/api/health/database` endpoint will return http 503 service unavailable status.
+
 ### cors configuration
 the application includes a comprehensive cors (cross-origin resource sharing) configuration that supports both development and production environments.
 
