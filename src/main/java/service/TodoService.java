@@ -29,8 +29,8 @@ public class TodoService {
         todo.setStatus("PENDING");
         todo.setCreatedAt(Instant.now());
         todo.setUpdatedAt(Instant.now());
+        todo.setUserId(getCurrentUsername()); // Set userId BEFORE saving
         todoRepository.save(todo);
-        todo.setUserId(getCurrentUsername());
         return mapToResponse(todo);
     }
 
@@ -48,10 +48,10 @@ public class TodoService {
 
     public TodoResponse getTodoById(String id) {
         Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new exception.TodoNotFoundException("Todo not found"));
 
         if (!getCurrentUsername().equals(todo.getUserId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new exception.UnauthorizedAccessException("Unauthorized access");
         }
 
         return mapToResponse(todo);
@@ -59,10 +59,10 @@ public class TodoService {
 
     public void deleteTodo(String id) {
         Todo todo = todoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new exception.TodoNotFoundException("Todo not found"));
 
         if (!getCurrentUsername().equals(todo.getUserId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new exception.UnauthorizedAccessException("Unauthorized access");
         }
 
         todoRepository.deleteById(id);

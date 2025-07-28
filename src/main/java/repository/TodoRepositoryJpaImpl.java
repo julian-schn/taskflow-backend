@@ -30,7 +30,10 @@ public class TodoRepositoryJpaImpl implements TodoRepository {
         todoJpa.setUserId(todo.getUserId());
         todoJpa.setCreatedAt(LocalDateTime.now());
         todoJpa.setUpdatedAt(LocalDateTime.now());
-        todoJpaRepository.save(todoJpa);
+        
+        // Save and update the Todo with the generated database ID
+        TodoJpa savedTodoJpa = todoJpaRepository.save(todoJpa);
+        todo.setId(savedTodoJpa.getId().toString());
     }
 
     @Override
