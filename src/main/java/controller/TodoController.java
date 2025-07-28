@@ -39,4 +39,9 @@ public class TodoController {
         todoService.deleteTodo(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/toggle")
+    public ResponseEntity<TodoResponse> toggleTodo(@PathVariable String id) {
+        return ResponseEntity.ok(todoService.toggleTodo(id));
+    }
 }

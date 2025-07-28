@@ -545,7 +545,7 @@ the application uses environment variables for configuration. create a `.env` fi
    - configure aws secrets manager for sensitive data
    - set up aws cloudwatch for monitoring
 
-7. frontend integration
+7. frontend integration (done 28. july)
    - create react authentication pages
    - implement token storage and management
    - add protected route components

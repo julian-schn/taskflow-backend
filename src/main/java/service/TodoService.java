@@ -68,6 +68,23 @@ public class TodoService {
         todoRepository.deleteById(id);
     }
 
+    public TodoResponse toggleTodo(String id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new exception.TodoNotFoundException("Todo not found"));
+
+        if (!getCurrentUsername().equals(todo.getUserId())) {
+            throw new exception.UnauthorizedAccessException("Unauthorized access");
+        }
+
+        // Toggle status between PENDING and COMPLETED
+        String newStatus = "PENDING".equals(todo.getStatus()) ? "COMPLETED" : "PENDING";
+        todo.setStatus(newStatus);
+        todo.setUpdatedAt(Instant.now());
+
+        todoRepository.save(todo);
+        return mapToResponse(todo);
+    }
+
     private TodoResponse mapToResponse(Todo todo) {
         TodoResponse res = new TodoResponse();
         res.setId(todo.getId());

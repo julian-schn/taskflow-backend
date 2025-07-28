@@ -262,6 +262,30 @@
               ]
             }
           }
+        },
+        {
+          "name": "Toggle Todo Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/todos/:todoId/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "todos", ":todoId", "toggle"],
+              "variable": [
+                {
+                  "key": "todoId",
+                  "value": "1",
+                  "description": "Replace with actual todo ID"
+                }
+              ]
+            }
+          }
         }
       ]
     }

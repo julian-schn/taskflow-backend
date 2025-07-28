@@ -216,6 +216,41 @@ Authorization: Bearer <token>
 
 ---
 
+### Toggle Todo Status
+```http
+PUT /api/todos/{id}/toggle
+```
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Description:** Toggles todo status between "PENDING" (not done) and "COMPLETED" (done).
+
+**Response:** `200 OK`
+```json
+{
+  "id": "uuid",
+  "title": "Todo Title",
+  "description": "Todo description",
+  "status": "COMPLETED",
+  "createdAt": "2024-01-01T12:00:00Z",
+  "updatedAt": "2024-01-01T12:05:00Z"
+}
+```
+
+**Status Logic:**
+- `PENDING` → `COMPLETED` (mark as done)
+- `COMPLETED` → `PENDING` (mark as not done)
+
+**Errors:**
+- `401` - Unauthorized
+- `403` - Access denied (todo belongs to another user)
+- `404` - Todo not found
+
+---
+
 ## 🏥 Health Check Endpoints
 
 ### Basic Ping
@@ -352,6 +387,10 @@ curl -X POST http://localhost:8081/api/todos \
 curl -H "Authorization: Bearer <token>" \
   http://localhost:8081/api/todos
 
-# 4. Check system health
+# 4. Toggle todo status (PENDING → COMPLETED or COMPLETED → PENDING)
+curl -X PUT -H "Authorization: Bearer <token>" \
+  http://localhost:8081/api/todos/1/toggle
+
+# 5. Check system health
 curl http://localhost:8081/api/health/status
 ``` 
