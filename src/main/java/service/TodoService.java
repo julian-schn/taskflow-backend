@@ -3,6 +3,7 @@ package service;
 import model.Todo;
 import model.TodoRequest;
 import model.TodoResponse;
+import model.EditTodoRequest;
 import repository.TodoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -79,6 +80,22 @@ public class TodoService {
         // Toggle status between PENDING and COMPLETED
         String newStatus = "PENDING".equals(todo.getStatus()) ? "COMPLETED" : "PENDING";
         todo.setStatus(newStatus);
+        todo.setUpdatedAt(Instant.now());
+
+        todoRepository.save(todo);
+        return mapToResponse(todo);
+    }
+
+    public TodoResponse editTodo(String id, EditTodoRequest request) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new exception.TodoNotFoundException("Todo not found"));
+
+        if (!getCurrentUsername().equals(todo.getUserId())) {
+            throw new exception.UnauthorizedAccessException("Unauthorized access");
+        }
+
+        // Update description
+        todo.setDescription(request.getDescription());
         todo.setUpdatedAt(Instant.now());
 
         todoRepository.save(todo);

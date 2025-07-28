@@ -216,6 +216,46 @@ Authorization: Bearer <token>
 
 ---
 
+### Edit Todo Description
+```http
+PUT /api/todos/{id}
+```
+
+**Headers:**
+```
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "description": "string (optional, max 1000 chars)"
+}
+```
+
+**Description:** Updates the description of an existing todo.
+
+**Response:** `200 OK`
+```json
+{
+  "id": "uuid",
+  "title": "Todo Title",
+  "description": "Updated description",
+  "status": "PENDING",
+  "createdAt": "2024-01-01T12:00:00Z",
+  "updatedAt": "2024-01-01T12:10:00Z"
+}
+```
+
+**Errors:**
+- `400` - Validation failed (description too long)
+- `401` - Unauthorized
+- `403` - Access denied (todo belongs to another user)
+- `404` - Todo not found
+
+---
+
 ### Toggle Todo Status
 ```http
 PUT /api/todos/{id}/toggle
@@ -387,10 +427,16 @@ curl -X POST http://localhost:8081/api/todos \
 curl -H "Authorization: Bearer <token>" \
   http://localhost:8081/api/todos
 
-# 4. Toggle todo status (PENDING → COMPLETED or COMPLETED → PENDING)
+# 4. Edit todo description
+curl -X PUT -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"description": "Updated description"}' \
+  http://localhost:8081/api/todos/1
+
+# 5. Toggle todo status (PENDING → COMPLETED or COMPLETED → PENDING)
 curl -X PUT -H "Authorization: Bearer <token>" \
   http://localhost:8081/api/todos/1/toggle
 
-# 5. Check system health
+# 6. Check system health
 curl http://localhost:8081/api/health/status
 ``` 

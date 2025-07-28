@@ -3,6 +3,7 @@ package controller;
 import jakarta.validation.Valid;
 import model.TodoRequest;
 import model.TodoResponse;
+import model.EditTodoRequest;
 import service.TodoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,5 +44,10 @@ public class TodoController {
     @PutMapping("/{id}/toggle")
     public ResponseEntity<TodoResponse> toggleTodo(@PathVariable String id) {
         return ResponseEntity.ok(todoService.toggleTodo(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TodoResponse> editTodo(@PathVariable String id, @Valid @RequestBody EditTodoRequest request) {
+        return ResponseEntity.ok(todoService.editTodo(id, request));
     }
 }

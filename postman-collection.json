@@ -264,6 +264,38 @@
           }
         },
         {
+          "name": "Edit Todo Description",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/todos/:todoId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "todos", ":todoId"],
+              "variable": [
+                {
+                  "key": "todoId",
+                  "value": "1",
+                  "description": "Replace with actual todo ID"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Toggle Todo Status",
           "request": {
             "method": "PUT",
