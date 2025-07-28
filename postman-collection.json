@@ -264,7 +264,7 @@
           }
         },
         {
-          "name": "Edit Todo Description",
+          "name": "Edit Todo Title",
           "request": {
             "method": "PUT",
             "header": [
@@ -279,7 +279,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"description\": \"Updated description\"\n}"
+              "raw": "{\n  \"title\": \"Updated Todo Title\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/todos/:todoId",

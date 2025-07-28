@@ -94,8 +94,8 @@ public class TodoService {
             throw new exception.UnauthorizedAccessException("Unauthorized access");
         }
 
-        // Update description
-        todo.setDescription(request.getDescription());
+        // Update title
+        todo.setTitle(request.getTitle());
         todo.setUpdatedAt(Instant.now());
 
         todoRepository.save(todo);
