@@ -40,3 +40,13 @@ localstack/cache/*.key
 .env
 .env.local
 .env.production
+
+# Runtime data (local databases, cache)
+data/
+data/*.db
+data/**/*.db
+
+# LocalStack cache and certificates/keys
+localstack/cache/
+localstack/cache/*.pem
+localstack/cache/*.key
