@@ -36,6 +36,13 @@ build/
 localstack/cache/*.pem
 localstack/cache/*.key
 
+# OS/filesystem noise
+.DS_Store
+
+# Logs
+*.log
+logs/
+
 # Environment variables
 .env
 .env.local
