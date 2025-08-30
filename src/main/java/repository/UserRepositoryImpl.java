@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.util.Optional;
 
 @Repository
-@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = true)
 public class UserRepositoryImpl implements UserRepository {
 
     private final DynamoDbTable<User> userTable;

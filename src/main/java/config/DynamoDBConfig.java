@@ -9,7 +9,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import java.net.URI;
 
 @Configuration
-@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = true)
 public class DynamoDBConfig {
 
     @Bean

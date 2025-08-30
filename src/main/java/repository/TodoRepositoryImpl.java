@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Repository
-@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(name = "dynamodb.enabled", havingValue = "true", matchIfMissing = true)
 public class TodoRepositoryImpl implements TodoRepository {
 
     private final DynamoDbEnhancedClient enhancedClient;
