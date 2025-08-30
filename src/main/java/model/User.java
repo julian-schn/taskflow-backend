@@ -19,6 +19,7 @@ public class User {
         this.id = id;
     }
 
+    @DynamoDbSecondaryPartitionKey(indexNames = "username-index")
     public String getUsername() {
         return username;
     }

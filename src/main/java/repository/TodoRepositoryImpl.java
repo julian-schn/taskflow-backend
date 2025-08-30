@@ -5,7 +5,12 @@ import repository.TodoRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
+import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.ProvisionedThroughput;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbWaiter;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -16,8 +21,10 @@ public class TodoRepositoryImpl implements TodoRepository {
 
     private final DynamoDbEnhancedClient enhancedClient;
     private final DynamoDbTable<Todo> todoTable;
+    private final DynamoDbClient dynamoDbClient;
 
     public TodoRepositoryImpl(DynamoDbClient dynamoDbClient) {
+        this.dynamoDbClient = dynamoDbClient;
         this.enhancedClient = DynamoDbEnhancedClient.builder()
                 .dynamoDbClient(dynamoDbClient)
                 .build();
@@ -27,7 +34,22 @@ public class TodoRepositoryImpl implements TodoRepository {
 
     @PostConstruct
     private void createTableIfNotExists() {
-        // Skip for now; handled by docker init
+        final String tableName = "todos";
+        try {
+            dynamoDbClient.describeTable(DescribeTableRequest.builder().tableName(tableName).build());
+        } catch (ResourceNotFoundException rnfe) {
+            // Create table with minimal provisioned throughput; for on-demand, adjust as needed
+            todoTable.createTable(CreateTableEnhancedRequest.builder()
+                    .provisionedThroughput(ProvisionedThroughput.builder()
+                            .readCapacityUnits(5L)
+                            .writeCapacityUnits(5L)
+                            .build())
+                    .build());
+
+            try (DynamoDbWaiter waiter = dynamoDbClient.waiter()) {
+                waiter.waitUntilTableExists(b -> b.tableName(tableName));
+            }
+        }
     }
 
     @Override
