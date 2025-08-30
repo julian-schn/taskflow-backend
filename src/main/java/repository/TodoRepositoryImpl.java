@@ -5,8 +5,12 @@ import repository.TodoRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.*;
-import software.amazon.awssdk.enhanced.dynamodb.model.CreateTableEnhancedRequest;
-import software.amazon.awssdk.enhanced.dynamodb.model.ProvisionedThroughput;
+import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
+import software.amazon.awssdk.services.dynamodb.model.BillingMode;
+import software.amazon.awssdk.services.dynamodb.model.CreateTableRequest;
+import software.amazon.awssdk.services.dynamodb.model.KeySchemaElement;
+import software.amazon.awssdk.services.dynamodb.model.KeyType;
+import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DescribeTableRequest;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
@@ -38,11 +42,16 @@ public class TodoRepositoryImpl implements TodoRepository {
         try {
             dynamoDbClient.describeTable(DescribeTableRequest.builder().tableName(tableName).build());
         } catch (ResourceNotFoundException rnfe) {
-            // Create table with minimal provisioned throughput; for on-demand, adjust as needed
-            todoTable.createTable(CreateTableEnhancedRequest.builder()
-                    .provisionedThroughput(ProvisionedThroughput.builder()
-                            .readCapacityUnits(5L)
-                            .writeCapacityUnits(5L)
+            dynamoDbClient.createTable(CreateTableRequest.builder()
+                    .tableName(tableName)
+                    .billingMode(BillingMode.PAY_PER_REQUEST)
+                    .keySchema(KeySchemaElement.builder()
+                            .attributeName("id")
+                            .keyType(KeyType.HASH)
+                            .build())
+                    .attributeDefinitions(AttributeDefinition.builder()
+                            .attributeName("id")
+                            .attributeType(ScalarAttributeType.S)
                             .build())
                     .build());
 
