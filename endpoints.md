@@ -318,9 +318,8 @@ GET /api/health/database
 ```json
 {
   "status": "UP",
-  "database": "H2",
-  "version": "2.3.232 (2024-08-11)",
-  "url": "jdbc:h2:mem:testdb",
+  "database": "Amazon DynamoDB",
+  "endpoint": "http://localhost:8000",
   "connection": "valid"
 }
 ```
@@ -339,12 +338,11 @@ GET /api/health/status
   "application": "taskflow-backend",
   "timestamp": 1753639711530,
   "database_connected": true,
-  "database_status": "H2 2.3.232 - Connected",
+  "database_status": "Amazon DynamoDB - Connected",
   "database": {
     "status": "UP",
-    "database": "H2",
-    "version": "2.3.232 (2024-08-11)",
-    "url": "jdbc:h2:mem:testdb",
+    "database": "Amazon DynamoDB",
+    "endpoint": "http://localhost:8000",
     "connection": "valid"
   }
 }
@@ -381,20 +379,14 @@ GET /actuator/health
 
 ---
 
-## 🗄️ Database Console (Development Only)
+## 🗄️ DynamoDB Notes (Development)
 
-### H2 Console
-```http
-GET /h2-console
-```
-
-**Access:** Browser only (local development)
-- **URL**: `http://localhost:8081/h2-console`
-- **JDBC URL**: `jdbc:h2:mem:testdb`
-- **Username**: `sa`
-- **Password**: (empty)
-
----
+- The service uses DynamoDB by default for all profiles.
+- With DynamoDB Local (Docker), the application will auto-create tables and indexes on startup:
+  - Table `todos` with partition key `id` (STRING)
+  - Table `users` with partition key `id` (STRING)
+  - Global Secondary Index `username-index` on `users.username` for efficient lookups
+  - Billing mode: on-demand (PAY_PER_REQUEST)
 
 ## 📊 Rate Limits
 
