@@ -1,5 +1,6 @@
 package service;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@ConditionalOnBean(javax.sql.DataSource.class)
 public class DatabaseHealthService {
 
     private static final Logger logger = LogManager.getLogger(DatabaseHealthService.class);

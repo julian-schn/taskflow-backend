@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import service.DatabaseHealthService;
+import java.util.Optional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,12 +16,18 @@ public class HealthController {
 
     private final DatabaseHealthService databaseHealthService;
 
-    public HealthController(DatabaseHealthService databaseHealthService) {
-        this.databaseHealthService = databaseHealthService;
+    public HealthController(Optional<DatabaseHealthService> databaseHealthService) {
+        this.databaseHealthService = databaseHealthService.orElse(null);
     }
 
     @GetMapping("/database")
     public ResponseEntity<Map<String, Object>> checkDatabaseHealth() {
+        if (databaseHealthService == null) {
+            Map<String, Object> healthData = new HashMap<>();
+            healthData.put("status", "UNKNOWN");
+            healthData.put("database", "not-configured");
+            return ResponseEntity.ok(healthData);
+        }
         Map<String, Object> healthData = databaseHealthService.checkDatabaseHealth();
         
         // Return HTTP 503 Service Unavailable if database is down
@@ -36,19 +43,26 @@ public class HealthController {
         Map<String, Object> systemStatus = new HashMap<>();
         
         // Check database health
-        Map<String, Object> dbHealth = databaseHealthService.checkDatabaseHealth();
-        systemStatus.put("database", dbHealth);
+        if (databaseHealthService != null) {
+            Map<String, Object> dbHealth = databaseHealthService.checkDatabaseHealth();
+            systemStatus.put("database", dbHealth);
+            systemStatus.put("status", "UP".equals(dbHealth.get("status")) ? "UP" : "DEGRADED");
+            boolean dbConnected = databaseHealthService.isDatabaseConnected();
+            systemStatus.put("database_connected", dbConnected);
+            systemStatus.put("database_status", databaseHealthService.getDatabaseStatus());
+        } else {
+            systemStatus.put("database", Map.of(
+                    "status", "UNKNOWN",
+                    "database", "not-configured"
+            ));
+            systemStatus.put("status", "UP");
+            systemStatus.put("database_connected", false);
+            systemStatus.put("database_status", "Database not configured");
+        }
         
         // Add basic system info
         systemStatus.put("application", "taskflow-backend");
         systemStatus.put("timestamp", System.currentTimeMillis());
-        systemStatus.put("status", "UP".equals(dbHealth.get("status")) ? "UP" : "DEGRADED");
-        
-        // Check if database is connected
-        boolean dbConnected = databaseHealthService.isDatabaseConnected();
-        systemStatus.put("database_connected", dbConnected);
-        systemStatus.put("database_status", databaseHealthService.getDatabaseStatus());
-        
         return ResponseEntity.ok(systemStatus);
     }
 
