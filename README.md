@@ -34,24 +34,23 @@ everything you need for setting up taskflow to run locally
 
 4. **run the application**
    ```bash
-   # for local development (uses h2 database) - recommended
-   mvn spring-boot:run -Dspring-boot.run.profiles=local
+   # for local development (uses DynamoDB Local via Docker)
+   docker compose up -d && mvn spring-boot:run -Dspring-boot.run.profiles=docker
    ```
 
 your application should now be running at:
 - **local**: http://localhost:8081
-- **h2 console**: http://localhost:8081/h2-console
+- **dynamodb local**: http://localhost:8000
 
 ---
 
 ## techstack
 - java spring boot
-- aws dynamodb
+- aws dynamodb (default persistence)
 - aws lambda
 - jwt
 - docker
 - log4j
-- h2 database for local testing
 
 ## debugging/faq
 
@@ -60,15 +59,15 @@ your application should now be running at:
 the application supports three different profiles for different environments:
 
 #### local profile (recommended for development)
-- **purpose**: local development and testing without external dependencies
-- **database**: h2 in-memory database (fast startup, no setup required)
+- **purpose**: local development and testing with DynamoDB Local
+- **database**: dynamodb local via docker compose
 - **port**: 8081
 - **features**:
    - h2 console available at http://localhost:8081/h2-console
    - automatic table creation
    - debug logging enabled
    - circular references allowed for development
-- **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=local`
+- **usage**: `docker compose up -d && mvn spring-boot:run -Dspring-boot.run.profiles=local`
 
 #### docker profile
 - **purpose**: local development with dynamodb container
@@ -90,13 +89,13 @@ the application supports three different profiles for different environments:
    - optimized for performance
 - **usage**: `mvn spring-boot:run -Dspring-boot.run.profiles=prod`
 
-**recommendation**: use the `local` profile for development and testing. it provides the fastest setup and doesn't require docker or aws services.
+**recommendation**: use the `local` profile for development and testing. it uses DynamoDB Local via Docker for parity with prod.
 
 ### profile decision matrix
 
 | profile | database | port | docker required? | aws required? | use case |
 |---------|----------|------|------------------|---------------|----------|
-| local | h2 in-memory | 8081 | no | no | quick development |
+| local | dynamodb local | 8081 | yes | no | quick development |
 | docker | dynamodb local | 8081 | yes | no | test with dynamodb |
 | prod | aws dynamodb | 8080 | no | yes | production deployment |
 
@@ -115,11 +114,10 @@ the application supports three different profiles for different environments:
 
 ### how to test the api
 
-#### option 1: local profile with h2 database (recommended)
-1. start springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
-2. the app will automatically create an h2 in-memory database with all required tables
-3. access h2 console at http://localhost:8081/h2-console if you want to inspect the database
-4. use curl commands to test endpoints (see examples below)
+#### option 1: local profile with dynamodb (recommended)
+1. start docker dynamodb: ``docker compose up -d``
+2. start springboot app with local profile: ``mvn spring-boot:run -Dspring-boot.run.profiles=local``
+3. use curl commands to test endpoints (see examples below)
 
 #### option 2: docker profile with dynamodb
 1. start local dynamodb: ``docker-compose up -d``
@@ -449,10 +447,10 @@ the application uses environment variables for configuration. create a `.env` fi
 - `aws_default_region` - aws region (default: eu-central-1)
 - `aws_dynamodb_endpoint` - dynamodb endpoint (default: http://localhost:8000)
 
-**database configuration:**
-- `db_url` - database connection url (default: jdbc:h2:mem:testdb)
-- `db_username` - database username (default: sa)
-- `db_password` - database password (default: empty)
+**database configuration (legacy, removed in favor of DynamoDB):**
+- `db_url` - removed
+- `db_username` - removed
+- `db_password` - removed
 
 **server configuration:**
 - `server_port` - application port (default: 8081 for local/docker, 8080 for prod)
@@ -462,7 +460,7 @@ the application uses environment variables for configuration. create a `.env` fi
 - `rate_limit_refresh_requests_per_minute` - refresh requests per minute (default: 10)
 
 **dynamodb configuration:**
-- `dynamodb_enabled` - enable dynamodb (default: false for local, true for docker/prod)
+- `dynamodb_enabled` - enable dynamodb (default: true)
 - `dynamodb_table_name` - dynamodb table name (default: todos)
 
 **cors configuration:**
