@@ -2,6 +2,11 @@ spring:
   application:
     name: taskflow-backend
   
+  # Optimize for Lambda cold starts
+  main:
+    lazy-initialization: true
+    allow-circular-references: true
+  
   # AWS Configuration for Lambda
   cloud:
     aws:

@@ -14,6 +14,13 @@ import com.taskflow.taskflowbackend.TaskflowBackendApplication;
  * 
  * This handler allows the Spring Boot application to run in AWS Lambda by proxying
  * HTTP requests through the Spring Boot application context.
+ * 
+ * Configuration:
+ * - Handler: util.AwsLambdaHandler::handleRequest
+ * - Runtime: java17 or java21
+ * - Memory: Recommended 512MB+ for Spring Boot apps
+ * - Timeout: 30+ seconds for cold starts
+ * - Environment Variables: Set SPRING_PROFILES_ACTIVE=lambda
  */
 public class AwsLambdaHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
 
@@ -23,6 +30,9 @@ public class AwsLambdaHandler implements RequestHandler<AwsProxyRequest, AwsProx
         try {
             // Initialize the Spring Boot Lambda container handler
             handler = SpringLambdaContainerHandler.getAwsProxyHandler(TaskflowBackendApplication.class);
+            
+            // Configure the handler for optimal Lambda performance
+            handler.activateSpringProfiles("lambda");
             
             // Enable request and response logging for debugging (optional)
             // handler.getContainerConfig().setRequestMetricsLogger(new DefaultRequestMetricsLogger());
