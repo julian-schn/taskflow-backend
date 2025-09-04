@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: taskflow-backend
+  
+  # AWS Configuration for Lambda
+  cloud:
+    aws:
+      region:
+        static: ${AWS_DEFAULT_REGION:eu-central-1}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      endpoint: ${AWS_DYNAMODB_ENDPOINT:}
+
+# Server Configuration - Lambda doesn't need server port
+# server:
+#   port: ${SERVER_PORT:8080}
+
+# DynamoDB Configuration
+dynamodb:
+  table:
+    name: ${DYNAMODB_TABLE_NAME:todos}
+  enabled: ${DYNAMODB_ENABLED:true}
+
+aws:
+  dynamodb:
+    endpoint: ${AWS_DYNAMODB_ENDPOINT:}
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
+# Rate Limiting
+rate:
+  limit:
+    auth:
+      requests-per-minute: ${RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE:5}
+      refresh-requests-per-minute: ${RATE_LIMIT_REFRESH_REQUESTS_PER_MINUTE:10}
+
+# CORS Configuration for Lambda
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
+  allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD}
+  allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type,Accept,Origin,X-Requested-With,Cache-Control,Pragma,X-CSRF-TOKEN,X-API-Key,X-Client-Version}
+  exposed-headers: ${CORS_EXPOSED_HEADERS:Authorization,X-Total-Count,X-Page-Count,X-Current-Page,X-Rate-Limit-Remaining,X-Rate-Limit-Reset}
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+  max-age: ${CORS_MAX_AGE:3600}
+
+# Logging configuration for Lambda
+logging:
+  level:
+    com.amazonaws.serverless: DEBUG
+    com.taskflow: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
