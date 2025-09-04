@@ -46,12 +46,23 @@ services:
     image: localstack/localstack:latest
     container_name: localstack
     ports:
-      - "4566:4566"
+      - "4566:4566"  # LocalStack main endpoint
+      - "4510-4559:4510-4559"  # External service port range
     environment:
-      - SERVICES=lambda,dynamodb
+      - SERVICES=lambda,dynamodb,apigateway,iam,sts,logs
       - DEFAULT_REGION=eu-central-1
+      - DEBUG=1
+      - LAMBDA_EXECUTOR=docker
+      - LAMBDA_REMOVE_CONTAINERS=true
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp}/localstack
+      - DATA_DIR=/tmp/localstack/data
     volumes:
       - "./localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./target:/opt/code/localstack/target:ro"  # Mount built JAR for Lambda
+    depends_on:
+      - dynamodb-local
 
   backend:
     build: .
