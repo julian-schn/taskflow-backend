@@ -1,0 +1,54 @@
+# SAM Configuration File
+# This file stores default parameters for 'sam deploy' commands
+# You can override these by passing parameters directly to 'sam deploy'
+
+version = 0.1
+
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "taskflow-backend-dev"
+s3_bucket = ""  # SAM will auto-create a bucket if this is empty
+s3_prefix = "taskflow-backend"
+region = "eu-central-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=dev",
+    "JwtSecret=your-super-secure-jwt-secret-key-that-is-at-least-256-bits-long-for-production-use",
+    "CorsAllowedOrigins=*"
+]
+image_repositories = []
+confirm_changeset = true
+fail_on_empty_changeset = false
+
+[staging]
+[staging.deploy]
+[staging.deploy.parameters]
+stack_name = "taskflow-backend-staging"
+s3_bucket = ""
+s3_prefix = "taskflow-backend"
+region = "eu-central-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=staging",
+    "JwtSecret=your-staging-jwt-secret-key",
+    "CorsAllowedOrigins=https://staging.yourdomain.com"
+]
+confirm_changeset = true
+fail_on_empty_changeset = false
+
+[prod]
+[prod.deploy]
+[prod.deploy.parameters]
+stack_name = "taskflow-backend-prod"
+s3_bucket = ""
+s3_prefix = "taskflow-backend"
+region = "eu-central-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = [
+    "Environment=prod",
+    "JwtSecret=CHANGE-THIS-TO-YOUR-PRODUCTION-JWT-SECRET",
+    "CorsAllowedOrigins=https://yourdomain.com,https://www.yourdomain.com"
+]
+confirm_changeset = true
+fail_on_empty_changeset = false

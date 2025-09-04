@@ -1,0 +1,238 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  Taskflow Backend - Serverless Spring Boot application
+  A complete todo management system with JWT authentication,
+  deployed as AWS Lambda with API Gateway and DynamoDB.
+
+# Global configuration that applies to all functions
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: java17
+    Environment:
+      Variables:
+        SPRING_PROFILES_ACTIVE: lambda
+        DYNAMODB_ENABLED: true
+
+# Parameters allow customization during deployment
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+    Description: Environment name (dev, staging, prod)
+  
+  JwtSecret:
+    Type: String
+    NoEcho: true
+    Description: JWT secret key for token signing
+    Default: your-super-secure-jwt-secret-key-that-is-at-least-256-bits-long-for-production-use
+  
+  CorsAllowedOrigins:
+    Type: String
+    Default: "*"
+    Description: Comma-separated list of allowed CORS origins
+
+# Resources define the AWS infrastructure
+Resources:
+  
+  # Main Lambda function that runs the Spring Boot application
+  TaskflowBackendFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "taskflow-backend-${Environment}"
+      CodeUri: target/taskflow-backend-0.0.1-SNAPSHOT.jar
+      Handler: util.AwsLambdaHandler::handleRequest
+      Description: Taskflow Backend - Spring Boot serverless application
+      
+      # Environment variables for the Lambda function
+      Environment:
+        Variables:
+          JWT_SECRET: !Ref JwtSecret
+          JWT_EXPIRATION_MS: 86400000
+          AWS_DEFAULT_REGION: !Ref AWS::Region
+          DYNAMODB_TABLE_NAME: !Ref TodosTable
+          USERS_TABLE_NAME: !Ref UsersTable
+          RATE_LIMIT_AUTH_REQUESTS_PER_MINUTE: 10
+          RATE_LIMIT_REFRESH_REQUESTS_PER_MINUTE: 20
+          CORS_ALLOWED_ORIGINS: !Ref CorsAllowedOrigins
+          CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD"
+          CORS_ALLOWED_HEADERS: "Authorization,Content-Type,Accept,Origin,X-Requested-With,Cache-Control,Pragma,X-CSRF-TOKEN,X-API-Key,X-Client-Version"
+          CORS_EXPOSED_HEADERS: "Authorization,X-Total-Count,X-Page-Count,X-Current-Page,X-Rate-Limit-Remaining,X-Rate-Limit-Reset"
+          CORS_ALLOW_CREDENTIALS: true
+          CORS_MAX_AGE: 3600
+      
+      # API Gateway Events - routes HTTP requests to the Lambda function
+      Events:
+        # Catch-all route that forwards all HTTP requests to Spring Boot
+        ApiGatewayAnyMethod:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TaskflowApi
+            Path: /{proxy+}
+            Method: ANY
+        
+        # Root path handler
+        ApiGatewayRootMethod:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TaskflowApi
+            Path: /
+            Method: ANY
+      
+      # IAM permissions for the Lambda function
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TodosTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/taskflow-backend-${Environment}:*"
+
+  # API Gateway REST API
+  TaskflowApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "taskflow-api-${Environment}"
+      StageName: !Ref Environment
+      Description: REST API for Taskflow Backend
+      
+      # CORS configuration
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,PATCH,OPTIONS,HEAD'"
+        AllowHeaders: "'Authorization,Content-Type,Accept,Origin,X-Requested-With,Cache-Control,Pragma,X-CSRF-TOKEN,X-API-Key,X-Client-Version'"
+        AllowOrigin: !Sub "'${CorsAllowedOrigins}'"
+        AllowCredentials: true
+        MaxAge: "'3600'"
+      
+      # Enable request/response logging
+      AccessLogSetting:
+        DestinationArn: !Sub "${ApiGatewayLogGroup.Arn}"
+        Format: >
+          $context.requestId $context.identity.sourceIp $context.identity.caller
+          $context.identity.user [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol"
+          $context.status $context.error.message $context.error.messageString $context.responseLength
+      
+      # Enable throttling
+      ThrottleSettings:
+        RateLimit: 1000
+        BurstLimit: 2000
+
+  # CloudWatch Log Group for API Gateway
+  ApiGatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/apigateway/taskflow-api-${Environment}"
+      RetentionInDays: 14
+
+  # DynamoDB Table for Todos
+  TodosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "todos-${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: UserIdIndex
+          KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      
+      # Enable point-in-time recovery
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      
+      # Tags
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: Taskflow
+
+  # DynamoDB Table for Users
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "users-${Environment}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      
+      # Enable point-in-time recovery
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      
+      # Tags
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Application
+          Value: Taskflow
+
+# Outputs provide important information after deployment
+Outputs:
+  TaskflowApi:
+    Description: "API Gateway endpoint URL for Taskflow Backend"
+    Value: !Sub "https://${TaskflowApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiUrl"
+  
+  TaskflowApiId:
+    Description: "API Gateway ID"
+    Value: !Ref TaskflowApi
+    Export:
+      Name: !Sub "${AWS::StackName}-ApiId"
+  
+  TaskflowBackendFunction:
+    Description: "Taskflow Backend Lambda Function ARN"
+    Value: !GetAtt TaskflowBackendFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-FunctionArn"
+  
+  TodosTable:
+    Description: "DynamoDB Todos Table Name"
+    Value: !Ref TodosTable
+    Export:
+      Name: !Sub "${AWS::StackName}-TodosTable"
+  
+  UsersTable:
+    Description: "DynamoDB Users Table Name"
+    Value: !Ref UsersTable
+    Export:
+      Name: !Sub "${AWS::StackName}-UsersTable"
+  
+  Region:
+    Description: "AWS Region"
+    Value: !Ref AWS::Region
+    Export:
+      Name: !Sub "${AWS::StackName}-Region"
