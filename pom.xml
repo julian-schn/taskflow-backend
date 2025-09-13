@@ -147,7 +147,7 @@
             <!-- JJWT Jackson: Jackson integration (JSON serialization/deserialization for JWT claims) -->
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.6</version>
+            <version>0.13.0</version>
             <scope>runtime</scope>
         </dependency>
 
