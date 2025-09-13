@@ -1,0 +1,216 @@
+name: Performance Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+      test_duration:
+        description: 'Test duration in minutes'
+        required: false
+        default: '5'
+        type: string
+
+jobs:
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Install k6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+    
+    - name: Create performance test script
+      run: |
+        cat > performance-test.js << 'EOF'
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        import { Rate } from 'k6/metrics';
+        
+        // Custom metrics
+        const errorRate = new Rate('error_rate');
+        
+        // Test configuration
+        const BASE_URL = __ENV.API_URL || 'https://your-api-url.execute-api.eu-central-1.amazonaws.com/dev';
+        const TEST_DURATION = __ENV.TEST_DURATION || '5m';
+        const VUS = __ENV.VUS || 10;
+        
+        export let options = {
+          vus: VUS,
+          duration: TEST_DURATION,
+          thresholds: {
+            http_req_duration: ['p(95)<2000'], // 95% of requests should be below 2s
+            http_req_failed: ['rate<0.1'], // Error rate should be below 10%
+            error_rate: ['rate<0.05'], // Custom error rate should be below 5%
+          },
+        };
+        
+        export function setup() {
+          // Register a test user and get JWT token
+          const registerPayload = JSON.stringify({
+            username: `testuser_${Math.random().toString(36).substr(2, 9)}`,
+            password: 'TestPassword123'
+          });
+          
+          const registerResponse = http.post(`${BASE_URL}/api/auth/register`, registerPayload, {
+            headers: { 'Content-Type': 'application/json' },
+          });
+          
+          if (registerResponse.status === 200) {
+            const token = JSON.parse(registerResponse.body).token;
+            return { token };
+          }
+          
+          return { token: null };
+        }
+        
+        export default function(data) {
+          const headers = {
+            'Content-Type': 'application/json',
+          };
+          
+          if (data.token) {
+            headers['Authorization'] = `Bearer ${data.token}`;
+          }
+          
+          // Test health endpoint
+          let response = http.get(`${BASE_URL}/api/health/status`, { headers });
+          let success = check(response, {
+            'health check status is 200': (r) => r.status === 200,
+            'health check response time < 1s': (r) => r.timings.duration < 1000,
+          });
+          errorRate.add(!success);
+          
+          sleep(1);
+          
+          if (data.token) {
+            // Test todos endpoints
+            response = http.get(`${BASE_URL}/api/todos`, { headers });
+            success = check(response, {
+              'todos list status is 200': (r) => r.status === 200,
+              'todos list response time < 2s': (r) => r.timings.duration < 2000,
+            });
+            errorRate.add(!success);
+            
+            sleep(1);
+            
+            // Test creating a todo
+            const todoPayload = JSON.stringify({
+              title: `Test Todo ${Math.random().toString(36).substr(2, 9)}`,
+              description: 'Performance test todo'
+            });
+            
+            response = http.post(`${BASE_URL}/api/todos`, todoPayload, { headers });
+            success = check(response, {
+              'create todo status is 200': (r) => r.status === 200,
+              'create todo response time < 2s': (r) => r.timings.duration < 2000,
+            });
+            errorRate.add(!success);
+          }
+          
+          sleep(1);
+        }
+        
+        export function teardown(data) {
+          // Cleanup if needed
+          console.log('Performance test completed');
+        }
+        EOF
+    
+    - name: Get API URL
+      id: get-api-url
+      run: |
+        case "${{ inputs.environment }}" in
+          "dev")
+            API_URL=$(aws cloudformation describe-stacks \
+              --stack-name taskflow-backend-dev \
+              --region eu-central-1 \
+              --query 'Stacks[0].Outputs[?OutputKey==`TaskflowApi`].OutputValue' \
+              --output text 2>/dev/null || echo "")
+            ;;
+          "staging")
+            API_URL=$(aws cloudformation describe-stacks \
+              --stack-name taskflow-backend-staging \
+              --region eu-central-1 \
+              --query 'Stacks[0].Outputs[?OutputKey==`TaskflowApi`].OutputValue' \
+              --output text 2>/dev/null || echo "")
+            ;;
+          "prod")
+            API_URL=$(aws cloudformation describe-stacks \
+              --stack-name taskflow-backend-prod \
+              --region eu-central-1 \
+              --query 'Stacks[0].Outputs[?OutputKey==`TaskflowApi`].OutputValue' \
+              --output text 2>/dev/null || echo "")
+            ;;
+        esac
+        
+        if [ -z "$API_URL" ]; then
+          echo "API URL not found for environment ${{ inputs.environment }}"
+          echo "api_url=" >> $GITHUB_OUTPUT
+        else
+          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+          echo "API URL: $API_URL"
+        fi
+    
+    - name: Configure AWS credentials
+      if: steps.get-api-url.outputs.api_url != ''
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: eu-central-1
+    
+    - name: Run performance test
+      if: steps.get-api-url.outputs.api_url != ''
+      run: |
+        k6 run performance-test.js \
+          --env API_URL="${{ steps.get-api-url.outputs.api_url }}" \
+          --env TEST_DURATION="${{ inputs.test_duration }}m" \
+          --env VUS=10 \
+          --out json=performance-results.json
+    
+    - name: Upload performance results
+      if: steps.get-api-url.outputs.api_url != ''
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results-${{ inputs.environment }}-${{ github.run_number }}
+        path: performance-results.json
+        retention-days: 30
+    
+    - name: Generate performance report
+      if: steps.get-api-url.outputs.api_url != ''
+      run: |
+        echo "## Performance Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+        echo "**API URL:** ${{ steps.get-api-url.outputs.api_url }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Test Duration:** ${{ inputs.test_duration }} minutes" >> $GITHUB_STEP_SUMMARY
+        echo "**Virtual Users:** 10" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Key Metrics" >> $GITHUB_STEP_SUMMARY
+        echo "- Response time (95th percentile): < 2s" >> $GITHUB_STEP_SUMMARY
+        echo "- Error rate: < 10%" >> $GITHUB_STEP_SUMMARY
+        echo "- Custom error rate: < 5%" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Detailed results are available in the artifacts." >> $GITHUB_STEP_SUMMARY
