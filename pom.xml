@@ -158,7 +158,7 @@
             <!-- Spring Boot Starter Log4j2: replaces default Logback with Log4j2 -->
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
-            <version>3.5.0</version>
+            <version>3.5.5</version>
         </dependency>
 
         <!--
