@@ -132,7 +132,7 @@
             <!-- JJWT API: public interfaces for building/parsing JWTs -->
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.12.6</version>
+            <version>0.13.0</version>
         </dependency>
 
         <dependency>
